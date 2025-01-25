@@ -5,6 +5,7 @@ import AppError from "../../error/AppError";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from "../../config";
 import { createToken } from "./auth.utils";
+import { generateUserId } from "../../utils/generateUserId";
 
 
 // create user services
@@ -13,7 +14,7 @@ const createUserIntoDB = async (payload: TUser) => {
 
     try {
         session.startTransaction()
-        // payload.id = await generatedStudentId()
+        payload.id = await generateUserId()
         const newUser = await AuthUser.create([payload], {session})
         
         if (!newUser) {
@@ -31,7 +32,7 @@ const createUserIntoDB = async (payload: TUser) => {
 
 // login user services
 const loginUserServices = async (payload: TUserLogin) => {
-    const user = await AuthUser.isUserExistsByEmail(payload.email)
+    const user = await AuthUser.isUserExistsById(payload.id)
     if (!user) {
         throw new AppError(404, 'This user is not found !')
     }
@@ -48,7 +49,7 @@ const loginUserServices = async (payload: TUserLogin) => {
 
     // create token and sent to the user
     const jwtPaylod = {
-        email: user.email,
+        email: user.id,
         role: user.role as string
     }
 
@@ -64,8 +65,8 @@ const refreshToken = async (token: string) => {
 
     const decoded = jwt.verify(token, config.jwt_refresh_secret as string) as JwtPayload
 
-    const { email, iat } = decoded;
-    const user = await AuthUser.isUserExistsByEmail(email);
+    const { id, iat } = decoded;
+    const user = await AuthUser.isUserExistsById(id);
 
     if (!user) {
         throw new AppError(404, 'This user is not found !');
@@ -76,7 +77,7 @@ const refreshToken = async (token: string) => {
       }
 
     const jwtPayload = {
-        email: user.email,
+        email: user.id,
         role: user.role as string,
     };
 
