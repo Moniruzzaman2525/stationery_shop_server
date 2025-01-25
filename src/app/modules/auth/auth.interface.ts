@@ -3,6 +3,7 @@ import { USER_ROLE } from "./auth.constant";
 
 
 export interface TUser {
+    id: string;
     _id?: Types.ObjectId;
     name: string;
     email: string;

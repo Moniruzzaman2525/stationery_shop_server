@@ -4,11 +4,11 @@ import bcrypt from 'bcrypt'
 import config from "../../config";
 
 const userSchema = new Schema<TUser, UserModel>({
-    // id: {
-    //     type: String,
-    //     required: true,
-    //     unique: true
-    // },
+    id: {
+        type: String,
+        required: true,
+        unique: true
+    },
     name: {
         type: String,
         required: [true, 'Name is required']

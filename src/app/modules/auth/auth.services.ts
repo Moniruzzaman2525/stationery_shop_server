@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { TUser, TUserLogin } from "./auth.interface";
 import { AuthUser } from "./auth.model";
 import AppError from "../../error/AppError";
-// import { generatedStudentId } from "./auth.utils";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from "../../config";
 import { createToken } from "./auth.utils";

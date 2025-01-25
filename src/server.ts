@@ -7,7 +7,7 @@ let server: Server
 
 async function main() {
   try {
-   await mongoose.connect('mongodb+srv://admin-um:aMFu3p0gqtDzV8t1@cluster0.67neob1.mongodb.net/blog-server-l2-a3?retryWrites=true&w=majority&appName=Cluster0');
+   await mongoose.connect(config.database_url as string);
     server = app.listen(config.port, () => {
       console.log(`Example app listening: ${config.port}`);
     });
