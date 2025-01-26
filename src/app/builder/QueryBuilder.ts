@@ -1,68 +1,174 @@
+// import { FilterQuery, Query } from 'mongoose';
 
-import { FilterQuery, Query } from "mongoose";
+// class QueryBuilder<T> {
+//   public modelQuery: Query<T[], T>;
+//   public query: Record<string, unknown>;
 
+//   constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
+//     this.modelQuery = modelQuery;
+//     this.query = query;
+//   }
+
+//   search(searchableFields: string[]) {
+//     const searchTerm = this?.query?.searchTerm;
+//     if (searchTerm) {
+//       this.modelQuery = this.modelQuery.find({
+//         $or: searchableFields.map(
+//           (field) =>
+//             ({
+//               [field]: { $regex: searchTerm, $options: 'i' },
+//             }) as FilterQuery<T>,
+//         ),
+//       });
+//     }
+
+//     return this;
+//   }
+
+//   filter() {
+//     const queryObj = { ...this.query }; // copy
+
+//     // Filtering
+//     const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+
+//     excludeFields.forEach((el) => delete queryObj[el]);
+
+//     this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+
+//     return this;
+//   }
+
+//   sort() {
+//     const sort =
+//       (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+//     this.modelQuery = this.modelQuery.sort(sort as string);
+
+//     return this;
+//   }
+
+//   paginate() {
+//     const page = Number(this?.query?.page) || 1;
+//     const limit = Number(this?.query?.limit) || 10;
+//     const skip = (page - 1) * limit;
+
+//     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+
+//     return this;
+//   }
+
+//   fields() {
+//     const fields =
+//       (this?.query?.fields as string)?.split(',')?.join(' ') || '-__v';
+
+//     this.modelQuery = this.modelQuery.select(fields);
+//     return this;
+//   }
+//   async countTotal() {
+//     const totalQueries = this.modelQuery.getFilter();
+//     const total = await this.modelQuery.model.countDocuments(totalQueries);
+//     const page = Number(this?.query?.page) || 1;
+//     const limit = Number(this?.query?.limit) || 10;
+//     const totalPage = Math.ceil(total / limit);
+
+//     return {
+//       page,
+//       limit,
+//       total,
+//       totalPage,
+//     };
+//   }
+// }
+
+// export default QueryBuilder;
+
+import { FilterQuery, Query } from 'mongoose';
 
 class QueryBuilder<T> {
-    public modelQuery: Query<T[], T>;
-    public query: Record<string, unknown>;
+  public modelQuery: Query<T[], T>;
+  public query: Record<string, unknown>;
 
-    constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
-        this.modelQuery = modelQuery;
-        this.query = query;
+  constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
+    this.modelQuery = modelQuery;
+    this.query = query;
+  }
+
+  search(searchableFields: string[]) {
+    const searchTerm = this.query.search as string;
+    if (searchTerm) {
+      this.modelQuery = this.modelQuery.find({
+        $or: searchableFields.map(
+          (field) =>
+            ({
+              [field]: { $regex: searchTerm, $options: 'i' },
+            }) as FilterQuery<T>,
+        ),
+      });
     }
 
-    search(searchableFields: string[]) {
-        const searchTerm = this.query.search as string; 
-        if (searchTerm) {
-            this.modelQuery = this.modelQuery.find({
-                $or: searchableFields.map(
-                    (field) =>
-                        ({
-                            [field]: { $regex: searchTerm, $options: 'i' },
-                        }) as FilterQuery<T>,
-                ),
-            });
-        }
-        return this;
+    return this;
+  }
+
+  filter() {
+    const queryObj = { ...this.query }; // copy query
+    const excludeFields = ['search', 'sort', 'limit', 'page', 'fields', 'priceRange'];
+
+    // Remove excluded fields
+    excludeFields.forEach((field) => delete queryObj[field]);
+
+    // Handle array-based filters (e.g., category and availability)
+    for (const key in queryObj) {
+      if (Array.isArray(queryObj[key])) {
+        queryObj[key] = { $in: queryObj[key] }; // Match any value in the array
+      }
     }
 
-    filter() {
-        const queryObj = { ...this.query };
-
-        if (this.query.filter) {
-            queryObj.author = this.query.filter;
-        }
-
-        const excludeFields = ['search', 'sortBy', 'sortOrder', 'limit', 'page', 'fields', 'filter'];
-        excludeFields.forEach((el) => delete queryObj[el]);
-
-        this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
-        return this;
+    // Handle price range filter
+    if (this.query.priceRange) {
+      const [min, max] = (this.query.priceRange as string).split('-').map(Number);
+      if (!isNaN(min) && !isNaN(max)) {
+        queryObj['price'] = { $gte: min, $lte: max }; // Range filter
+      }
     }
 
-    sort() {
-        const sortField = this.query.sortBy as string || 'createdAt'; 
-        const sortOrder = this.query.sortOrder === 'asc' ? '' : '-';  
-        this.modelQuery = this.modelQuery.sort(`${sortOrder}${sortField}`);
-        return this;
-    }
+    this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+    return this;
+  }
 
-    paginate() {
-        const page = Number(this.query.page) || 1;
-        const limit = Number(this.query.limit) || 10;
-        const skip = (page - 1) * limit;
+  sort() {
+    const sort = (this.query.sort as string)?.split(',')?.join(' ') || '-createdAt';
+    this.modelQuery = this.modelQuery.sort(sort);
+    return this;
+  }
 
-        this.modelQuery = this.modelQuery.skip(skip).limit(limit);
-        return this;
-    }
+  paginate() {
+    const page = Number(this.query.page) || 1;
+    const limit = Number(this.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    fields() {
-        const fields = this.query.fields as string;
-        const selectFields = fields ? fields.split(',').join(' ') : '-__v';
+    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+    return this;
+  }
 
-        this.modelQuery = this.modelQuery.select(selectFields);
-        return this;
-    }
+  fields() {
+    const fields = (this.query.fields as string)?.split(',')?.join(' ') || '-__v';
+    this.modelQuery = this.modelQuery.select(fields);
+    return this;
+  }
+
+  async countTotal() {
+    const totalQueries = this.modelQuery.getFilter();
+    const total = await this.modelQuery.model.countDocuments(totalQueries);
+    const page = Number(this.query.page) || 1;
+    const limit = Number(this.query.limit) || 10;
+    const totalPage = Math.ceil(total / limit);
+
+    return {
+      page,
+      limit,
+      total,
+      totalPage,
+    };
+  }
 }
 
 export default QueryBuilder;

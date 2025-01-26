@@ -52,7 +52,10 @@ userSchema.post('save', async function (doc, next) {
 
 
 userSchema.statics.isUserExistsById = async function (id) {
-    return await AuthUser.findOne({id: id}).select('+password')
+    return await AuthUser.findOne({id: id})
+}
+userSchema.statics.isUserExistsByEmail = async function (email) {
+    return await AuthUser.findOne({email: email}).select('+password')
 }
 
 userSchema.statics.isPasswordMatch = async function (plainTextPassword, hashPassword) {

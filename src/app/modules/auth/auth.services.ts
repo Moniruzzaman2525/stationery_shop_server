@@ -15,14 +15,24 @@ const createUserIntoDB = async (payload: TUser) => {
     try {
         session.startTransaction()
         payload.id = await generateUserId()
-        const newUser = await AuthUser.create([payload], {session})
-        
+        const newUser = await AuthUser.create([payload], { session })
+
         if (!newUser) {
-            throw new AppError(400, 'Failed to create user !'); 
+            throw new AppError(400, 'Failed to create user !');
         }
+        const user = (newUser[0])
+        // create token and sent to the user
+        const jwtPaylod = {
+            email: user.id,
+            role: user.role as string
+        }
+
+        const accessToken = createToken(jwtPaylod, config.jwt_access_secret as string, config.jwt_access_expires_in as string)
+        const refreshToken = createToken(jwtPaylod, config.jwt_refresh_secret as string, config.jwt_refresh_expires_in as string)
+
         await session.commitTransaction()
         await session.endSession()
-        return newUser
+        return { accessToken, refreshToken }
     } catch (error: any) {
         await session.abortTransaction()
         await session.endSession()
@@ -32,7 +42,7 @@ const createUserIntoDB = async (payload: TUser) => {
 
 // login user services
 const loginUserServices = async (payload: TUserLogin) => {
-    const user = await AuthUser.isUserExistsById(payload.id)
+    const user = await AuthUser.isUserExistsByEmail(payload.email)
     if (!user) {
         throw new AppError(404, 'This user is not found !')
     }
@@ -70,11 +80,11 @@ const refreshToken = async (token: string) => {
 
     if (!user) {
         throw new AppError(404, 'This user is not found !');
-      }
-  
-      if (user?.isBlocked) {
+    }
+
+    if (user?.isBlocked) {
         throw new AppError(401, 'This user is blocked !');
-      }
+    }
 
     const jwtPayload = {
         email: user.id,
