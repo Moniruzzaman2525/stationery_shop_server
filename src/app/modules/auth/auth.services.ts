@@ -107,9 +107,40 @@ const getMe = async (userId: string, role: string) => {
     return result;
   };
 
+
+  const updateUserInDB = async (userId: string, payload: Partial<TUser>) => {
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        const existingUser = await AuthUser.findOne({id: userId}).session(session);
+        if (!existingUser) {
+            throw new AppError(404, 'User not found!');
+        }
+
+        Object.assign(existingUser, payload);
+        const updatedUser = await existingUser.save({ session });
+
+        if (!updatedUser) {
+            throw new AppError(400, 'Failed to update user!');
+        }
+
+        await session.commitTransaction();
+        await session.endSession();
+
+        return { message: 'User updated successfully', user: updatedUser };
+    } catch (error: any) {
+        await session.abortTransaction();
+        await session.endSession();
+        throw new AppError(400, error);
+    }
+};
+
 export const authUserServices = {
     createUserIntoDB,
     loginUserServices,
     refreshToken,
-    getMe
+    getMe,
+    updateUserInDB
 }

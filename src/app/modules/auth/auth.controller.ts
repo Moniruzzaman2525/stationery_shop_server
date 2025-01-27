@@ -52,28 +52,43 @@ const refreshToken = catchAsync(async (req, res) => {
     const result = await authUserServices.refreshToken(refreshToken);
 
     sendResponse(res, {
-      statusCode: 200,
-      success: true,
-      message: 'Access token is retrieved succesfully!',
-      data: result,
+        statusCode: 200,
+        success: true,
+        message: 'Access token is retrieved successfully!',
+        data: result,
     });
-  });
+});
 
-  const getMe = catchAsync(async (req, res) => {
+
+const updateProfile = catchAsync(async (req, res) => {
+    const { profileData } = req.body;
+    const userId = req.user.id
+    const result = await authUserServices.updateUserInDB(userId, profileData);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'Access token is retrieved successfully!',
+        data: result,
+    });
+});
+
+const getMe = catchAsync(async (req, res) => {
     const { id, role } = req.user;
     const result = await authUserServices.getMe(id, role);
-  
+
     sendResponse(res, {
-      statusCode: 200,
-      success: true,
-      message: 'User is retrieved successfully',
-      data: result,
+        statusCode: 200,
+        success: true,
+        message: 'User is retrieved successfully',
+        data: result,
     });
-  });
+});
 
 export const userControllers = {
     createUserController,
     loginUserController,
     refreshToken,
-    getMe
+    getMe,
+    updateProfile
 }
