@@ -13,6 +13,19 @@ const userSchema = new Schema<TUser, UserModel>({
         type: String,
         required: [true, 'Name is required']
     },
+    age: {
+        type: String,
+    },
+    photo: {
+        type: String,
+    },
+    phone: {
+        type: String,
+    },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female']
+    },
     email: {
         type: String,
         required: [true, 'Email is required'],

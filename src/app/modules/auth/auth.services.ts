@@ -102,7 +102,7 @@ const refreshToken = async (token: string) => {
     };
 };
 const getMe = async (userId: string, role: string) => {
-    const result = await AuthUser.findOne({ id: userId }).populate('user');
+    const result = await AuthUser.findOne({ id: userId })
   
     return result;
   };

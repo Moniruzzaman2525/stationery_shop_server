@@ -60,8 +60,8 @@ const refreshToken = catchAsync(async (req, res) => {
   });
 
   const getMe = catchAsync(async (req, res) => {
-    const { userId, role } = req.user;
-    const result = await authUserServices.getMe(userId, role);
+    const { id, role } = req.user;
+    const result = await authUserServices.getMe(id, role);
   
     sendResponse(res, {
       statusCode: 200,

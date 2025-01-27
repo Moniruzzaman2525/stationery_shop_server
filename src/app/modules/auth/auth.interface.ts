@@ -6,6 +6,10 @@ export interface TUser {
     id: string;
     _id?: Types.ObjectId;
     name: string;
+    age: string;
+    gender: 'Male' | 'Female';
+    photo: string;
+    phone: string;
     email: string;
     password: string;
     role?: 'admin' | 'user';
