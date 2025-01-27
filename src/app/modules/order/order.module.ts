@@ -87,12 +87,12 @@ const OrderSchema = new mongoose.Schema(
     paymentStatus: { type: String, required: true, enum: ['succeeded', 'failed', 'pending'] },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'AuthUser',
+      ref: 'User',
     },
     orderDate: { type: Date, default: Date.now },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 

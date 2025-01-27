@@ -9,3 +9,16 @@ export interface TOrder {
   created_at?: Date;
   updated_at?: Date;
 }
+export type CartItem = {
+  _id: string;
+};
+
+export type OrderData = {
+  product: string;
+  totalAmount: number;
+  currency: string;
+  paymentId: string;
+  paymentStatus: string;
+  user: Types.ObjectId;
+  orderDate: Date;
+};

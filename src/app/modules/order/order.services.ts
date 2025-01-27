@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { Orders } from './order.module';
-import { TOrder } from './orderInterface';
+import { CartItem, OrderData, TOrder } from './orderInterface';
 import { AuthUser } from '../auth/auth.model';
 import { Types } from 'mongoose';
 
@@ -22,19 +22,7 @@ const orderProductService = async (price: number) => {
   }
 };
 
-type CartItem = {
-  _id: string;
-};
 
-type OrderData = {
-  product: string;
-  totalAmount: number;
-  currency: string;
-  paymentId: string;
-  paymentStatus: string;
-  user: Types.ObjectId;
-  orderDate: Date;
-};
 
 export const callbackOrder = async (
   cartData: CartItem[],
@@ -89,12 +77,14 @@ const getTotalRevenueFromDB = async () => {
 };
 
 
-const getUserOrder = async () => {
-  const orders = await Orders.find()
-    .populate('customer')
-    .populate('items');
-  return orders
-}
+const getUserOrder = async (id: string) => {
+  const user = await AuthUser.isUserExistsById(id);
+  const orders = await Orders.find({ user: user._id }) 
+    .populate('user') 
+    .populate('product'); 
+  return orders;
+};
+
 
 export const ordersServices = {
   orderProductService,

@@ -63,7 +63,8 @@ const getUserOrderController = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await ordersServices.getUserOrder();
+    const userId = req.user.id
+    const result = await ordersServices.getUserOrder(userId);
 
     res.status(200).json({
       message: 'Revenue calculated successfully',

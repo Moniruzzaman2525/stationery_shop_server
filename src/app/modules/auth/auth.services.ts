@@ -101,10 +101,15 @@ const refreshToken = async (token: string) => {
         accessToken,
     };
 };
-
+const getMe = async (userId: string, role: string) => {
+    const result = await AuthUser.findOne({ id: userId }).populate('user');
+  
+    return result;
+  };
 
 export const authUserServices = {
     createUserIntoDB,
     loginUserServices,
-    refreshToken
+    refreshToken,
+    getMe
 }
