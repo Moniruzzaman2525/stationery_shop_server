@@ -8,8 +8,27 @@ const orderProductController = async (
   next: NextFunction,
 ) => {
   try {
-    const price = req.body;
+    const {price} = req.body;
+    
     const result = await ordersServices.orderProductService(price);
+    res.status(200).json({
+      message: 'Order created successfully',
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const orderCallbackController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const {cart, paymentData} = req.body;
+    const userId = req.user.id
+    const result = await ordersServices.callbackOrder(cart, paymentData, userId);
     res.status(200).json({
       message: 'Order created successfully',
       success: true,
@@ -38,9 +57,30 @@ const revenueGenerateController = async (
     next(error);
   }
 };
+const getUserOrderController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await ordersServices.getUserOrder();
+
+    res.status(200).json({
+      message: 'Revenue calculated successfully',
+      status: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 // export order controllers
 export const OrderControllers = {
   orderProductController,
   revenueGenerateController,
+  orderCallbackController,
+  getUserOrderController
 };

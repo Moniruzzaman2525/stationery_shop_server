@@ -1,30 +1,77 @@
 import Stripe from 'stripe';
 import { Orders } from './order.module';
 import { TOrder } from './orderInterface';
+import { AuthUser } from '../auth/auth.model';
+import { Types } from 'mongoose';
 
 const orderProductService = async (price: number) => {
   try {
     const stripe = new Stripe('sk_test_51NYRyfKTzmdU21JYO4eHnWYq0iKcJj2rGa7b7NZ9UIY6EcGH1cendbnbh2vINcJup4WkUuNFdmqETrP10vn3djgS00FVCGzPiB', {
       apiVersion: '2022-11-15' as any,
     })
-    
     const amount = price * 100
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: 'usd',
-      payment_method_types: ['card'], 
+      payment_method_types: ['card'],
     });
 
-    console.log(paymentIntent.client_secret);
+    return paymentIntent
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
 };
-// const orderProductService = async (orderData: TOrder) => {
-//   const order = new Orders(orderData);
-//   const result = await order.save();
-//   return result;
-// };
+
+type CartItem = {
+  _id: string;
+};
+
+type OrderData = {
+  product: string;
+  totalAmount: number;
+  currency: string;
+  paymentId: string;
+  paymentStatus: string;
+  user: Types.ObjectId;
+  orderDate: Date;
+};
+
+export const callbackOrder = async (
+  cartData: CartItem[],
+  paymentDetails: Stripe.PaymentIntent,
+  userId: string
+): Promise<any[]> => {
+  try {
+    const { id: paymentId, amount, currency, status } = paymentDetails;
+
+    const user = await AuthUser.isUserExistsById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const userIdObject = new Types.ObjectId(user._id);
+    const orders = await Promise.all(
+      cartData.map(async (item) => {
+        const orderData: OrderData = {
+          product: item._id, 
+          totalAmount: amount / 100, 
+          currency,
+          paymentId,
+          paymentStatus: status,
+          user: userIdObject,
+          orderDate: new Date(),
+        };
+
+        const order = new Orders(orderData);
+        return await order.save();
+      })
+    );
+
+    return orders;
+  } catch (error) {
+    console.error('Error processing orders:', error);
+    throw error;
+  }
+};
 
 // Calculate Revenue from Orders Services
 const getTotalRevenueFromDB = async () => {
@@ -41,7 +88,17 @@ const getTotalRevenueFromDB = async () => {
   return totalRevenue;
 };
 
+
+const getUserOrder = async () => {
+  const orders = await Orders.find()
+    .populate('customer')
+    .populate('items');
+  return orders
+}
+
 export const ordersServices = {
   orderProductService,
   getTotalRevenueFromDB,
+  callbackOrder,
+  getUserOrder
 };

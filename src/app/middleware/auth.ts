@@ -8,9 +8,9 @@ import { AuthUser } from "../modules/auth/auth.model";
 
 
 const auth = (...requiredRoles: TUserRole[]) => {
+ 
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new AppError(401, 'You are not authorized!');
     }

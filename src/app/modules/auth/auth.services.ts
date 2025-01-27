@@ -23,7 +23,7 @@ const createUserIntoDB = async (payload: TUser) => {
         const user = (newUser[0])
         // create token and sent to the user
         const jwtPaylod = {
-            email: user.id,
+            id: user.id,
             role: user.role as string
         }
 
@@ -59,7 +59,7 @@ const loginUserServices = async (payload: TUserLogin) => {
 
     // create token and sent to the user
     const jwtPaylod = {
-        email: user.id,
+        id: user.id,
         role: user.role as string
     }
 
@@ -87,7 +87,7 @@ const refreshToken = async (token: string) => {
     }
 
     const jwtPayload = {
-        email: user.id,
+        id: user.id,
         role: user.role as string,
     };
 
