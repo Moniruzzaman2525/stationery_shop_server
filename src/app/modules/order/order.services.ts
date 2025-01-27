@@ -86,9 +86,10 @@ const getUserOrder = async (id: string) => {
 };
 
 
+
 export const ordersServices = {
   orderProductService,
   getTotalRevenueFromDB,
   callbackOrder,
-  getUserOrder
+  getUserOrder,
 };

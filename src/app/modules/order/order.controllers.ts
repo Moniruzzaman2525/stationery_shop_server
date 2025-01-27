@@ -83,5 +83,5 @@ export const OrderControllers = {
   orderProductController,
   revenueGenerateController,
   orderCallbackController,
-  getUserOrderController
+  getUserOrderController,
 };

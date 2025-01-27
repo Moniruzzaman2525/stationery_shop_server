@@ -6,11 +6,17 @@ export interface TUser {
     id: string;
     _id?: Types.ObjectId;
     name: string;
-    age: string;
-    gender: 'Male' | 'Female';
-    photo: string;
-    phone: string;
+    age?: string;
+    gender?: 'Male' | 'Female';
+    photo?: string;
+    phone?: string;
     email: string;
+    currentCountry?: string;
+    currentCity?: string;
+    currentStreet?: string;
+    permanentCountry?: string;
+    permanentCity?: string;
+    permanentStreet?: string;
     password: string;
     role?: 'admin' | 'user';
     isBlocked?: boolean

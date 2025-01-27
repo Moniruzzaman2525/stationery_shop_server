@@ -9,5 +9,7 @@ const router = exporss.Router()
 
 // admin routes
 router.patch('/users/:userId/block', auth(USER_ROLE.admin), adminController.userBlockController)
+router.get('/all-user', auth('admin'), adminController.getAllUser);
+router.get('/view-all-order', auth('admin'), adminController.getAllOrderController);
 
 export const AdminRoute = router

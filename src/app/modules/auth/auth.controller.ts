@@ -63,6 +63,7 @@ const refreshToken = catchAsync(async (req, res) => {
 const updateProfile = catchAsync(async (req, res) => {
     const { profileData } = req.body;
     const userId = req.user.id
+    console.log(profileData)
     const result = await authUserServices.updateUserInDB(userId, profileData);
 
     sendResponse(res, {
@@ -85,10 +86,11 @@ const getMe = catchAsync(async (req, res) => {
     });
 });
 
+
 export const userControllers = {
     createUserController,
     loginUserController,
     refreshToken,
     getMe,
-    updateProfile
+    updateProfile,
 }

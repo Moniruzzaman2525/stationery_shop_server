@@ -16,6 +16,24 @@ const userSchema = new Schema<TUser, UserModel>({
     age: {
         type: String,
     },
+    currentCountry: {
+        type: String,
+    },
+    currentCity: {
+        type: String,
+    },
+    currentStreet: {
+        type: String,
+    },
+    permanentCountry: {
+        type: String,
+    },
+    permanentCity: {
+        type: String,
+    },
+    permanentStreet: {
+        type: String,
+    },
     photo: {
         type: String,
     },

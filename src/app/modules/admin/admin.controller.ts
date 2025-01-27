@@ -18,9 +18,30 @@ const userBlockController = catchAsync(async (req, res) => {
     })
 
 })
+const getAllUser = catchAsync(async (req, res) => {
+    const result = await adminServices.getAllUser();
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'User is retrieved successfully',
+        data: result,
+    });
+});
+const getAllOrderController = catchAsync(async (req, res) => {
+    const result = await adminServices.getAllOrder();
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'User is retrieved successfully',
+        data: result,
+    });
+});
 
 
-
+  
 export const adminController = {
     userBlockController,
+    getAllUser,
+    getAllOrderController
 }

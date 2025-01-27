@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import { AuthUser } from "../auth/auth.model"
 import AppError from "../../error/AppError"
+import { Orders } from "../order/order.module"
 
 // user block services
 const adminBlockUserFromDB = async (id: string) => {
@@ -28,7 +29,19 @@ const adminBlockUserFromDB = async (id: string) => {
         throw new AppError(500, error)
     }
 }
+const getAllUser = async () => {
+    const result = await AuthUser.find({ })
+
+    return result;
+};
+
+const getAllOrder = async () => {
+    const orders = await Orders.find({}) 
+      .populate('user') 
+      .populate('product'); 
+    return orders;
+  };
 
 export const adminServices = {
-    adminBlockUserFromDB,
+    adminBlockUserFromDB,getAllUser, getAllOrder
 }

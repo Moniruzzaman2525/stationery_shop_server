@@ -103,27 +103,25 @@ const refreshToken = async (token: string) => {
 };
 const getMe = async (userId: string, role: string) => {
     const result = await AuthUser.findOne({ id: userId })
-  
+
     return result;
-  };
+};
 
-
-  const updateUserInDB = async (userId: string, payload: Partial<TUser>) => {
+const updateUserInDB = async (userId: string, payload: Partial<TUser>) => {
     const session = await mongoose.startSession();
 
     try {
         session.startTransaction();
 
-        const existingUser = await AuthUser.findOne({id: userId}).session(session);
-        if (!existingUser) {
-            throw new AppError(404, 'User not found!');
-        }
-
-        Object.assign(existingUser, payload);
-        const updatedUser = await existingUser.save({ session });
+        // Update the user directly in the database while filtering undefined fields
+        const updatedUser = await AuthUser.findOneAndUpdate(
+            { id: userId },
+            { $set: payload },
+            { new: true, session, runValidators: true, omitUndefined: true }
+        );
 
         if (!updatedUser) {
-            throw new AppError(400, 'Failed to update user!');
+            throw new AppError(404, 'User not found or update failed!');
         }
 
         await session.commitTransaction();
@@ -136,11 +134,10 @@ const getMe = async (userId: string, role: string) => {
         throw new AppError(400, error);
     }
 };
-
 export const authUserServices = {
     createUserIntoDB,
     loginUserServices,
     refreshToken,
     getMe,
-    updateUserInDB
+    updateUserInDB,
 }
