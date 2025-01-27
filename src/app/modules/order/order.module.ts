@@ -1,16 +1,11 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { TOrder } from './orderInterface';
-import validator from 'validator';
 
 // Stationery Order Schema
 const orderSchema = new Schema<TOrder>({
   email: {
     type: String,
     required: [true, 'Email is required'],
-    validate: {
-      validator: (value: string) => validator.isEmail(value),
-      message: 'User email is invalid',
-    },
   },
   product: {
     type: Schema.Types.ObjectId,

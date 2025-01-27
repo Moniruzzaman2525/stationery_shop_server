@@ -4,7 +4,7 @@ import { OrderControllers } from './order.controllers';
 const router = express.Router();
 
 // Order a Stationery Product Router
-router.post('/orders', OrderControllers.orderProductController);
+router.post('/confirm-order', OrderControllers.orderProductController);
 // Calculate Revenue from Orders Router
 router.get('/orders/revenue', OrderControllers.revenueGenerateController);
 

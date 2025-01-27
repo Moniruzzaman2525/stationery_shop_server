@@ -8,8 +8,8 @@ const orderProductController = async (
   next: NextFunction,
 ) => {
   try {
-    const orderData = req.body;
-    const result = await ordersServices.orderProductService(orderData);
+    const price = req.body;
+    const result = await ordersServices.orderProductService(price);
     res.status(200).json({
       message: 'Order created successfully',
       success: true,
