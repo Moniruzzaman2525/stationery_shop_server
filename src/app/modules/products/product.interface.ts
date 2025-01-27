@@ -6,6 +6,7 @@ export interface TProduct {
   category: 'Books' | 'Art And Craft' | 'Stationery' | 'Classroom Supplies'
   description: string;
   quantity: number;
-  inStock?: boolean;
+  stock?: boolean;
+  inStock: number;
   photo: string;
 }

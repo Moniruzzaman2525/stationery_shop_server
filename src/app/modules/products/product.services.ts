@@ -43,7 +43,7 @@ const updateProductIntoDB = async (
 ) => {
   // check: quantity is there then set isStock true
   if (updateData.quantity !== undefined) {
-    updateData.inStock = true;
+    updateData.stock = true;
   }
 
   // update product use by id and update product data
@@ -65,6 +65,8 @@ const deleteProductFromDB = async (productId: string) => {
   }
   return result;
 };
+
+
 
 // export Stationery Product Services
 export const ProductsServices = {

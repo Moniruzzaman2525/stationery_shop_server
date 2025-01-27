@@ -105,6 +105,8 @@ const updateProduct = async (
   }
 };
 
+
+
 // Delete a Stationery Product controller
 const deleteProduct = async (
   req: Request,

@@ -50,6 +50,15 @@ const productsSchema = new Schema<TProduct>({
     },
   },
   inStock: {
+    type: Number,
+    required: [true, 'Quantity is required'],
+    min: [0, 'Price must be a positive number'],
+    validate: {
+      validator: (value: number) => value >= 0,
+      message: 'Price must be a non-negative number',
+    },
+  },
+  stock: {
     type: Boolean,
     default: true,
     // required: [true, 'In Stack is required']
