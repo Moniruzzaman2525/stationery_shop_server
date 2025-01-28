@@ -3,32 +3,34 @@ import { AuthUser } from "../auth/auth.model"
 import AppError from "../../error/AppError"
 import { Orders } from "../order/order.module"
 
-// user block services
-const adminBlockUserFromDB = async (id: string) => {
-    const session = await mongoose.startSession()
+// user block / un block services
+const adminBlockUserFromDB  = async (id: string, action: 'block' | 'unblock') => {
+    const session = await mongoose.startSession();
 
     try {
-        session.startTransaction()
-
-        const user = await AuthUser.findById(id)
+        session.startTransaction();
+        const user = await AuthUser.findById(id).session(session);
         if (!user || !user._id) {
-            throw new AppError(404, 'User not found !')
+            throw new AppError(404, 'User not found!');
         }
-        const blockUser = await AuthUser.findByIdAndUpdate(
-            id,
-            { isBlocked: true },
-            { new: true, session },
-        )
+        const isBlocked = action === 'block';
 
-        await session.commitTransaction()
-        await session.endSession()
-        return blockUser
+        const updatedUser = await AuthUser.findByIdAndUpdate(
+            id,
+            { isBlocked },
+            { new: true, session }
+        );
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return updatedUser;
     } catch (error: any) {
-        await session.abortTransaction()
-        await session.endSession()
-        throw new AppError(500, error)
+        await session.abortTransaction();
+        session.endSession();
+        throw new AppError(500, error.message || 'Failed to toggle user block status');
     }
-}
+};
 const getAllUser = async () => {
     const result = await AuthUser.find({})
     return result;

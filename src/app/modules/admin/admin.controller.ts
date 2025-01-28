@@ -6,8 +6,8 @@ import { adminServices } from "./admin.services"
 // user block controller
 const userBlockController = catchAsync(async (req, res) => {
     const userId = req.params.userId
-
-    const result = await adminServices.adminBlockUserFromDB(userId)
+    const {status} = req.body
+    const result = await adminServices.adminBlockUserFromDB(userId, status)
     if (!result) {
         throw new AppError(404, 'User not found !');
     }
@@ -38,6 +38,7 @@ const getAllOrderController = catchAsync(async (req, res) => {
     });
 });
 const confirmOrder = catchAsync(async (req, res) => {
+    
     const id = req.params.orderId
     const result = await adminServices.confirmOrder(id);
     sendResponse(res, {

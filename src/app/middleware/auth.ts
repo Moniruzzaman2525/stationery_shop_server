@@ -16,6 +16,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
     
     const token = authHeader.split(' ')[1];
+   
     
 
     // if the token is send from client
@@ -28,7 +29,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
 
     const { role, id, iat } = decoded
     const user = await AuthUser.isUserExistsById(id)
-
+   
     if (!user) {
       throw new AppError(404, 'This user is not found !');
     }
@@ -36,7 +37,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
     if (user?.isBlocked) {
       throw new AppError(401, 'This user is blocked !');
     }
-
     // checking role 
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(401, 'You are not authorized !')
