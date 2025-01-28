@@ -13,11 +13,11 @@ const getAllBlog = async (query: Record<string, unknown>) => {
         .sort()
         .paginate()
         .fields();
-    const result = await academicDepartmentQuery.modelQuery;
+    const data = await academicDepartmentQuery.modelQuery;
     const meta = await academicDepartmentQuery.countTotal();
     return {
         meta,
-        result,
+        data,
     };
   
 };
