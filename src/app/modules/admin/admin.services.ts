@@ -52,11 +52,25 @@ const getAllUser = async (query: Record<string, unknown>) => {
     };
 };
 
-const getAllOrder = async () => {
-    const orders = await Orders.find({})
+const getAllOrder = async (query: Record<string, unknown>) => {
+    const academicDepartmentQuery = new QueryBuilder(
+        Orders.find()
         .populate('user')
-        .populate('product');
-    return orders;
+        .populate('product'),
+        query,
+    )
+        .search(userSearchableFields)
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
+    const result = await academicDepartmentQuery.modelQuery;
+    const meta = await academicDepartmentQuery.countTotal();
+    return {
+        meta,
+        result,
+    };
+  
 };
 const confirmOrder = async (orderId: string) => {
     try {

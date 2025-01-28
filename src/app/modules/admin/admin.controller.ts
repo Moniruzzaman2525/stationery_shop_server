@@ -31,12 +31,14 @@ const getAllUser = catchAsync(async (req, res) => {
     });
 });
 const getAllOrderController = catchAsync(async (req, res) => {
-    const result = await adminServices.getAllOrder();
+    const query = req.query
+    const result = await adminServices.getAllOrder(query);
     sendResponse(res, {
         statusCode: 200,
         success: true,
         message: 'Order retrieved successfully',
-        data: result,
+        meta: result.meta,
+        data: result.result,
     });
 });
 const confirmOrder = catchAsync(async (req, res) => {
