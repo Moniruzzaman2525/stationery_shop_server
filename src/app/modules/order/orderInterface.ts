@@ -14,7 +14,8 @@ export type CartItem = {
 };
 
 export type OrderData = {
-  product: string;
+  product: Types.ObjectId;
+  status: 'Pending' | 'Shipped';
   totalAmount: number;
   currency: string;
   paymentId: string;

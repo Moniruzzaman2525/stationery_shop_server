@@ -2,6 +2,7 @@
 // import { TOrder } from './orderInterface';
 
 import mongoose, { model, Schema } from "mongoose";
+import { OrderData } from "./orderInterface";
 
 // // Stationery Order Schema
 // const orderSchema = new Schema<TOrder>({
@@ -75,25 +76,38 @@ import mongoose, { model, Schema } from "mongoose";
 
 
 
-const OrderSchema = new mongoose.Schema(
+const OrderSchema = new mongoose.Schema<OrderData>(
   {
     product: {
       type: Schema.Types.ObjectId,
       ref: 'Products',
     },
-    totalAmount: { type: Number, required: true },
-    currency: { type: String, required: true },
-    paymentId: { type: String, required: true },
-    paymentStatus: { type: String, required: true, enum: ['succeeded', 'failed', 'pending'] },
+    totalAmount: {
+      type: Number, required: true
+    },
+    currency: {
+      type: String, required: true
+    },
+    paymentId: {
+      type: String, required: true
+    },
+    status: {
+      type: String, required: true, enum: ['Shipped', 'Pending'], default: 'Pending'
+    },
+    paymentStatus: {
+      type: String, required: true, enum: ['succeeded', 'failed', 'pending']
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    orderDate: { type: Date, default: Date.now },
+    orderDate: {
+      type: Date, default: Date.now
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export const Orders = model('Orders', OrderSchema);
+export const Orders = model<OrderData>('Orders', OrderSchema);

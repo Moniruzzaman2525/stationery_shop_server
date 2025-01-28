@@ -15,6 +15,10 @@ const createUserIntoDB = async (payload: TUser) => {
     try {
         session.startTransaction()
         payload.id = await generateUserId()
+        const existingUser = await AuthUser.findOne({ email: payload.email }).session(session);
+        if (existingUser) {
+            throw new AppError(400, "Email is already registered.");
+        }
         const newUser = await AuthUser.create([payload], { session })
 
         if (!newUser) {
