@@ -1,6 +1,7 @@
 import { Products } from './product.module';
 import { TProduct } from './product.interface';
 import QueryBuilder from '../../builder/QueryBuilder';
+import { productSearchableFields } from './product.constant';
 
 // Create a Stationery Product Services
 const createProductIntoDB = async (productData: TProduct) => {
@@ -8,21 +9,21 @@ const createProductIntoDB = async (productData: TProduct) => {
   const result = await product.save();
   return result;
 };
-export const AcademicDepartmentSearchableFields = ['name', 'brand', 'category'];
+
 // Get All Stationery Products Services
 const getAllProductIntoDB = async (query: Record<string, unknown>) => {
 
-  const academicDepartmentQuery = new QueryBuilder(
+  const allProductQuery = new QueryBuilder(
     Products.find(),
     query,
   )
-    .search(AcademicDepartmentSearchableFields)
+    .search(productSearchableFields)
     .filter()
     .sort()
     .paginate()
     .fields();
-  const result = await academicDepartmentQuery.modelQuery;
-  const meta = await academicDepartmentQuery.countTotal();
+  const result = await allProductQuery.modelQuery;
+  const meta = await allProductQuery.countTotal();
 
   return {
     meta,

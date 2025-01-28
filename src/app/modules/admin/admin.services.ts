@@ -2,9 +2,11 @@ import mongoose from "mongoose"
 import { AuthUser } from "../auth/auth.model"
 import AppError from "../../error/AppError"
 import { Orders } from "../order/order.module"
+import QueryBuilder from "../../builder/QueryBuilder";
+import { userSearchableFields } from "./admin.constant";
 
 // user block / un block services
-const adminBlockUserFromDB  = async (id: string, action: 'block' | 'unblock') => {
+const adminBlockUserFromDB = async (id: string, action: 'block' | 'unblock') => {
     const session = await mongoose.startSession();
 
     try {
@@ -31,9 +33,23 @@ const adminBlockUserFromDB  = async (id: string, action: 'block' | 'unblock') =>
         throw new AppError(500, error.message || 'Failed to toggle user block status');
     }
 };
-const getAllUser = async () => {
-    const result = await AuthUser.find({})
-    return result;
+const getAllUser = async (query: Record<string, unknown>) => {
+
+    const academicDepartmentQuery = new QueryBuilder(
+        AuthUser.find(),
+        query,
+    )
+        .search(userSearchableFields)
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
+    const result = await academicDepartmentQuery.modelQuery;
+    const meta = await academicDepartmentQuery.countTotal();
+    return {
+        meta,
+        result,
+    };
 };
 
 const getAllOrder = async () => {
@@ -45,9 +61,9 @@ const getAllOrder = async () => {
 const confirmOrder = async (orderId: string) => {
     try {
         const updatedOrder = await Orders.findByIdAndUpdate(
-            orderId, 
-            { status: 'Shipped' }, 
-            { new: true } 
+            orderId,
+            { status: 'Shipped' },
+            { new: true }
         );
 
         if (!updatedOrder) {
