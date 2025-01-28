@@ -30,18 +30,37 @@ const adminBlockUserFromDB = async (id: string) => {
     }
 }
 const getAllUser = async () => {
-    const result = await AuthUser.find({ })
-
+    const result = await AuthUser.find({})
     return result;
 };
 
 const getAllOrder = async () => {
-    const orders = await Orders.find({}) 
-      .populate('user') 
-      .populate('product'); 
+    const orders = await Orders.find({})
+        .populate('user')
+        .populate('product');
     return orders;
-  };
+};
+const confirmOrder = async (orderId: string) => {
+    try {
+        const updatedOrder = await Orders.findByIdAndUpdate(
+            orderId, 
+            { status: 'Shipped' }, 
+            { new: true } 
+        );
+
+        if (!updatedOrder) {
+            console.error("Order not found");
+            return { success: false, message: "Order not found" };
+        }
+
+        return { success: true, data: updatedOrder };
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        return { success: false, message: "Failed to update order status" };
+    }
+};
+
 
 export const adminServices = {
-    adminBlockUserFromDB,getAllUser, getAllOrder
+    adminBlockUserFromDB, getAllUser, getAllOrder, confirmOrder
 }

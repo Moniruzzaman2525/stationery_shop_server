@@ -33,7 +33,17 @@ const getAllOrderController = catchAsync(async (req, res) => {
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'User is retrieved successfully',
+        message: 'Order retrieved successfully',
+        data: result,
+    });
+});
+const confirmOrder = catchAsync(async (req, res) => {
+    const id = req.params.orderId
+    const result = await adminServices.confirmOrder(id);
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'Order confirm successfully',
         data: result,
     });
 });
@@ -43,5 +53,6 @@ const getAllOrderController = catchAsync(async (req, res) => {
 export const adminController = {
     userBlockController,
     getAllUser,
-    getAllOrderController
+    getAllOrderController,
+    confirmOrder
 }
