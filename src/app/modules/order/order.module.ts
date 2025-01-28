@@ -1,113 +1,88 @@
-// import mongoose, { Schema, model } from 'mongoose';
-// import { TOrder } from './orderInterface';
-
-import mongoose, { model, Schema } from "mongoose";
-import { OrderData } from "./orderInterface";
-
-// // Stationery Order Schema
-// const orderSchema = new Schema<TOrder>({
-//   email: {
-//     type: String,
-//     required: [true, 'Email is required'],
-//   },
-//   product: {
-//     type: Schema.Types.ObjectId,
-//     ref: 'Stationery',
-//     required: [true, 'Product Id is required'],
-//   },
-//   totalPrice: {
-//     type: Number,
-//     required: [true, 'Total price is required'],
-//     min: [0, 'Total price must be a positive number'],
-//   },
-//   quantity: {
-//     type: Number,
-//     required: [true, 'Quantity is required'],
-//     min: [1, 'Quantity must be at least 1'],
-//   },
-//   created_at: {
-//     type: Date,
-//     default: Date.now,
-//   },
-//   updated_at: {
-//     type: Date,
-//     default: Date.now,
-//   },
-// });
-
-// // Stationery Order Quantity Schema
-// orderSchema.pre('save', async function (next) {
-//   try {
-//     const productId = this.product;
-//     const orderQuantity = this.quantity;
-
-//     const product = await mongoose.model('Products').findById(productId);
-
-//     if (!product) {
-//       const error = new Error('Product not found');
-//       error.name = 'Validation Error';
-//       error.message = 'Product not found';
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//       (error as any).statusCode = 404;
-//       return next(error);
-//     }
-//     if (product.quantity < orderQuantity) {
-//       const error = new Error('Insufficient stock for the product');
-//       error.name = 'Validation Error';
-//       error.message = 'Insufficient stock for this product';
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//       (error as any).statusCode = 404;
-//       return next(error);
-//     }
-//     product.quantity -= orderQuantity;
-//     if (product.quantity === 0) {
-//       product.inStock = false;
-//     }
-//     await product.save();
-//     next();
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   } catch (error: any) {
-//     next(error);
-//   }
-// });
-
-// // Stationery Order Model
-// export const Orders = model<TOrder>('Orders', orderSchema);
+import mongoose, { Schema, model, Document, Types } from 'mongoose';
+import { OrderData } from './orderInterface';
+import { TProduct } from '../products/product.interface';
 
 
-
-const OrderSchema = new mongoose.Schema<OrderData>(
+const OrderSchema = new Schema<OrderData>(
   {
     product: {
       type: Schema.Types.ObjectId,
       ref: 'Products',
+      required: true, 
+    },
+    quantity: {
+      type: Number,
+      required: true, 
     },
     totalAmount: {
-      type: Number, required: true
+      type: Number,
+      required: true,
     },
     currency: {
-      type: String, required: true
+      type: String,
+      required: true,
     },
     paymentId: {
-      type: String, required: true
+      type: String,
+      required: true,
     },
     status: {
-      type: String, required: true, enum: ['Shipped', 'Pending'], default: 'Pending'
+      type: String,
+      required: true,
+      enum: ['Shipped', 'Pending'],
+      default: 'Pending',
     },
     paymentStatus: {
-      type: String, required: true, enum: ['succeeded', 'failed', 'pending']
+      type: String,
+      required: true,
+      enum: ['succeeded', 'failed', 'pending'],
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
     },
     orderDate: {
-      type: Date, default: Date.now
+      type: Date,
+      default: Date.now,
     },
   },
   {
     timestamps: true,
   }
 );
+
+OrderSchema.pre('save', async function (next) {
+  try {
+    const order = this as OrderData; 
+    const productId = order.product;
+    const orderQuantity = order.quantity;
+    const product = await mongoose.model<TProduct>('Products').findById(productId);
+
+    if (!product) {
+      const error = new Error('Product not found');
+      (error as any).statusCode = 404;
+      return next(error);
+    }
+
+    if (product.inStock < orderQuantity) {
+      const error = new Error('Insufficient stock for the product');
+      (error as any).statusCode = 400; 
+      return next(error);
+    }
+
+    product.inStock -= orderQuantity;
+    if (product.stock !== undefined) {
+      product.stock = product.inStock > 0;
+    }
+
+    await product.save();
+    next();
+  } catch (error: any) {
+    console.error('Error in pre-save middleware:', error);
+    next(error);
+  }
+});
+
 
 export const Orders = model<OrderData>('Orders', OrderSchema);

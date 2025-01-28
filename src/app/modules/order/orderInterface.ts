@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
 
-// Stationery Order Interface
 export interface TOrder {
   email: string;
   product: Types.ObjectId;
@@ -11,6 +10,7 @@ export interface TOrder {
 }
 export type CartItem = {
   _id: string;
+  quantity: number;
 };
 
 export type OrderData = {
@@ -20,6 +20,7 @@ export type OrderData = {
   currency: string;
   paymentId: string;
   paymentStatus: string;
+  quantity: number;
   user: Types.ObjectId;
   orderDate: Date;
 };

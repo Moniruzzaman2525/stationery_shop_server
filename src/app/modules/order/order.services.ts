@@ -24,7 +24,7 @@ const orderProductService = async (price: number) => {
 
 
 
-export const callbackOrder = async (
+const callbackOrder = async (
   cartData: CartItem[],
   paymentDetails: Stripe.PaymentIntent,
   userId: string
@@ -32,23 +32,32 @@ export const callbackOrder = async (
   try {
     const { id: paymentId, amount, currency, status } = paymentDetails;
 
+    // Verify the user exists
     const user = await AuthUser.isUserExistsById(userId);
     if (!user) {
       throw new Error('User not found');
     }
+
+    // Convert user ID to ObjectId
     const userIdObject = new Types.ObjectId(user._id);
+
+    // Process each cart item into an order
     const orders = await Promise.all(
       cartData.map(async (item) => {
+        // Ensure quantity is included in the order data
         const orderData: OrderData = {
-          product: item._id, 
-          totalAmount: amount / 100, 
+          product: new Types.ObjectId(item._id), // Convert product ID to ObjectId
+          quantity: item.quantity, // Add quantity from cartData
+          totalAmount: amount / 100,
           currency,
+          status: 'Pending',
           paymentId,
           paymentStatus: status,
           user: userIdObject,
           orderDate: new Date(),
         };
 
+        // Create and save the order
         const order = new Orders(orderData);
         return await order.save();
       })
@@ -60,6 +69,7 @@ export const callbackOrder = async (
     throw error;
   }
 };
+
 
 // Calculate Revenue from Orders Services
 const getTotalRevenueFromDB = async () => {

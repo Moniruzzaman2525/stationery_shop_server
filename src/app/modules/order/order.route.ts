@@ -5,11 +5,11 @@ import auth from '../../middleware/auth';
 const router = express.Router();
 
 // Order a Stationery Product Router
-router.post('/confirm-order', auth('user'), OrderControllers.orderProductController);
-router.post('/callback',auth('user'), OrderControllers.orderCallbackController);
+router.post('/confirm-order', auth('user', 'admin'), OrderControllers.orderProductController);
+router.post('/callback',auth('user', 'admin'), OrderControllers.orderCallbackController);
 // Calculate Revenue from Orders Router
 router.get('/orders/revenue', OrderControllers.revenueGenerateController);
-router.get('/', auth('user'), OrderControllers.getUserOrderController);
+router.get('/', auth('user', 'admin'), OrderControllers.getUserOrderController);
 
 
 export const OrderRoutes = router;
